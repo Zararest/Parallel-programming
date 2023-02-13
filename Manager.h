@@ -29,17 +29,20 @@ public:
     MPI_Init(nullptr, nullptr);
   }
 
+  MPIManager(const MPIManager&) = delete;
+  MPIManager(MPIManager&&) = default;
+
   ~MPIManager() {
     MPI_Finalize();
   }
 
-  PID getMPIGroupSize(MPIGroup Group = MPIGroup::World) const {
+  size_t getMPIGroupSize(MPIGroup Group = MPIGroup::World) const {
     auto Rank = 0;
     MPI_Comm_size(getGroup(Group), &Rank);
     return Rank;
   }
 
-  size_t getPID(MPIGroup Group = MPIGroup::World) const{
+  PID getPID(MPIGroup Group = MPIGroup::World) const{
     auto Size = 0;
     MPI_Comm_rank(getGroup(Group), &Size);
     return Size;

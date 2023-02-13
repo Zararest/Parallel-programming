@@ -1,3 +1,5 @@
+//mpic++ Task-2.cpp -std=c++1z  
+//mpirun -np 6 ./a.out 40    
 #include "../Manager.h"
 
 #include <stdlib.h>
@@ -36,7 +38,7 @@ class Sender {
 public:
   
   Sender(MPIManager& MPIMan, int NumOfSenders) : MPI{MPIMan},
-                                                        N{NumOfSenders} {}
+                                                 N{NumOfSenders} {}
   
   double getWork() const {
     auto[From, To] = getRange();
@@ -54,7 +56,6 @@ private:
   MPIManager& MPI;
   int N;
 };
-
 
 
 class Receiver {
@@ -75,7 +76,7 @@ class Receiver {
 public:
 
   Receiver (MPIManager& MPIMan, int NumOfSenders) : MPI{MPIMan},
-                                                        N{NumOfSenders} {}
+                                                    N{NumOfSenders} {}
   
   double getResult() const {
     auto Res = getOtherWork();
