@@ -11,16 +11,17 @@ public:
   
   Sender(MPIManager& MPIMan) : MPI{MPIMan} {}
   
-  int getNewMsg(int OldMsg) const {
+  template <typename T>
+  T getNewMsg(T OldMsg) {
     return OldMsg + 1;
   }
 
-  void sendToNext(int Msg) const {
+  void sendToNext(int Msg) {
     auto DestID = (MPI.getPID() + 1) % MPI.getMPIGroupSize();   
     MPI.send(getNewMsg(Msg), DestID);
   }
 
-  int recvFromPrev() const {
+  int recvFromPrev() {
     auto SrcID = MPI.getPID() ? (MPI.getPID() - 1) % MPI.getMPIGroupSize() 
                               : MPI.getMPIGroupSize() - 1;
     return MPI.recv<int>(SrcID);
