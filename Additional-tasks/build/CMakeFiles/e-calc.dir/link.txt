@@ -1,0 +1,1 @@
+/usr/bin/c++     CMakeFiles/e-calc.dir/e-task.cpp.o  -o e-calc  -Wl,-rpath,/usr/lib/x86_64-linux-gnu/openmpi/lib /usr/lib/x86_64-linux-gnu/openmpi/lib/libmpi.so -lgmp -lmpi_cxx 

@@ -1,8 +1,12 @@
+#ifndef MANAGER_H
+#define MANAGER_H
+
 #include <mpi.h>
 #include <stdio.h>
 #include <utility>
 #include <cassert>
 #include <algorithm>
+#include <string>
 
 #define DEFAULT_TAG 2
 
@@ -12,7 +16,7 @@ enum class MPIGroup {
   World
 };
 
-static MPI_Comm getGroup(MPIGroup Group) {
+MPI_Comm getGroup(MPIGroup Group) {
   switch (Group) {
   case MPIGroup::World:
     return MPI_COMM_WORLD;
@@ -74,3 +78,16 @@ public:
     return Res;
   }
 };
+
+template <>
+void MPIManager::send(std::string Msg, PID Dest, int MsgTag, 
+          MPI_Comm Group) const {
+
+}
+
+template <>
+std::string MPIManager::recv(PID Src, int MsgTag,
+        MPI_Comm Group) const {
+}
+
+#endif
