@@ -56,9 +56,6 @@ public:
   void send(T Msg, PID Dest, int MsgTag = DEFAULT_TAG, 
             MPI_Comm Group = getGroup(MPIGroup::World)) const {
     auto Size = sizeof(T);
-    #ifdef DEBUG 
-    std::cerr << "Send: " << Msg << std::endl; 
-    #endif
     auto Ret = MPI_Send(reinterpret_cast<char*>(&Msg), Size, MPI_BYTE, Dest,
                         MsgTag, Group); //0 - OK
   }
@@ -72,9 +69,6 @@ public:
     auto Ret = MPI_Recv(Buf, Size, MPI_BYTE, Src,
                         MsgTag, Group, &Status);
     auto Res = *reinterpret_cast<T*>(Buf);
-    #ifdef DEBUG
-    std::cerr << "Recv: " << Res << std::endl;
-    #endif 
     return Res;
   }
 };
@@ -82,8 +76,11 @@ public:
 template <>
 void MPIManager::send(std::string Msg, PID Dest, int MsgTag, 
           MPI_Comm Group) const {
-  send(Msg.length(), Dest, MsgTag, Group);
-  auto Ret = MPI_Send(Msg.c_str(), Msg.length(), MPI_BYTE, Dest,
+  #ifdef DEBUG_SEND
+  std::cout << "Sending: " << Msg << std::endl;
+  #endif
+  send(Msg.length() + 1, Dest, MsgTag, Group);
+  auto Ret = MPI_Send(Msg.c_str(), Msg.length() + 1, MPI_BYTE, Dest,
                         MsgTag, Group);
 }
 
@@ -95,6 +92,9 @@ std::string MPIManager::recv(PID Src, int MsgTag,
   MPI_Status Status;
   auto Ret = MPI_Recv(Buf, Size, MPI_BYTE, Src,
                       MsgTag, Group, &Status);
+  #ifdef DEBUG_SEND
+  std::cout << "Rescv: " << Buf << std::endl;;
+  #endif
   return std::string{Buf};
 }
 
