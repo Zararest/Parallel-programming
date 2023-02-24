@@ -13,24 +13,32 @@ using BigInt = boost::multiprecision::mpz_int;
 
 class Worker {
 
+  unsigned getPrevWorkerID() {
+     return MPI.getPID() ? (MPI.getPID() - 1) % MPI.getMPIGroupSize() 
+                                               :  MPI.getMPIGroupSize() - 1;
+  }
+
+  unsigned getNextWorkerID() {
+    return (MPI.getPID() + 1) % MPI.getMPIGroupSize();
+  }
+
   BigInt getAdditionalWork() {
     assert(MPI.getPID() == 0);
     auto AdditionalSeqBeg = SizeOfSeq * NumOfIter + 1;
     BigInt AdditionalRes = 1;
     for (unsigned SeqPos = 0; AdditionalSeqBeg + SeqPos <= N; SeqPos++)
       AdditionalRes = AdditionalRes * (AdditionalSeqBeg + SeqPos);
-    return AdditionalRes * recvRes();
+    return AdditionalRes * recvRes(getPrevWorkerID());
   }
 
-  BigInt recvRes(unsigned SrcID = MPI.getPID() ? (MPI.getPID() - 1) % MPI.getMPIGroupSize() 
-                                               : MPI.getMPIGroupSize() - 1) {
+  BigInt recvRes(unsigned SrcID) {
     auto PrevFactorial =  MPI.recv<std::string>(SrcID, DEFAULT_TAG, getGroup(MPIGroup::World));
     return BigInt{PrevFactorial};
   }
 
   void sendCurRes(BigInt Res, 
-                  unsigned DestID = (MPI.getPID() + 1) % MPI.getMPIGroupSize()) {
-    MPI.send(Res.str(), DestId, DEFAULT_TAG, getGroup(MPIGroup::World));
+                  unsigned DestID) {
+    MPI.send(Res.str(), DestID, DEFAULT_TAG, getGroup(MPIGroup::World));
   }
 
   BigInt calcCachedWork() {
@@ -60,7 +68,7 @@ class Worker {
     BigInt SeqRes = 1;
     for (unsigned SeqPos = 0; SeqPos < SizeOfSeq; SeqPos++) 
       SeqRes = SeqRes * (CurSeqBegin + SeqPos);
-    sendCurRes(recvRes() * SeqRes); 
+    sendCurRes(recvRes(getPrevWorkerID()) * SeqRes, getNextWorkerID()); 
   }
 
 public:
